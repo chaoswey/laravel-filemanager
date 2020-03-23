@@ -46,7 +46,7 @@ class UploadController extends LfmController
             if (is_null($new_filename)) {
                 $response = $error_bag[0];
             } else {
-                if (request('type') == 'json') {
+                if (request('responseType') == 'json') {
                     $response = response()->json([
                         'fileName' => $new_filename,
                         'uploaded' => 1,
