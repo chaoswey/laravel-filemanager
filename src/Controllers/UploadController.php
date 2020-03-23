@@ -50,7 +50,7 @@ class UploadController extends LfmController
                     $response = response()->json([
                         'fileName' => $new_filename,
                         'uploaded' => 1,
-                        'urL'      => $this->lfm->setName($new_filename)->url()
+                        'url'      => $this->lfm->setName($new_filename)->url()
                     ]);
                 } else {
                     $response = view(Lfm::PACKAGE_NAME . '::use')
