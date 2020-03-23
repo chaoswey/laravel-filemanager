@@ -3,8 +3,6 @@
 namespace UniSharp\LaravelFilemanager\Controllers;
 
 use Illuminate\Support\Facades\Log;
-use UniSharp\LaravelFilemanager\Events\ImageIsUploading;
-use UniSharp\LaravelFilemanager\Events\ImageWasUploaded;
 use UniSharp\LaravelFilemanager\Lfm;
 
 class UploadController extends LfmController
@@ -34,8 +32,8 @@ class UploadController extends LfmController
                 $new_filename = $this->lfm->upload($file);
             } catch (\Exception $e) {
                 Log::error($e->getMessage(), [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
+                    'file'  => $e->getFile(),
+                    'line'  => $e->getLine(),
                     'trace' => $e->getTraceAsString()
                 ]);
                 array_push($error_bag, $e->getMessage());
@@ -48,8 +46,16 @@ class UploadController extends LfmController
             if (is_null($new_filename)) {
                 $response = $error_bag[0];
             } else {
-                $response = view(Lfm::PACKAGE_NAME . '::use')
-                    ->withFile($this->lfm->setName($new_filename)->url());
+                if (request('type') == 'json') {
+                    $response = response()->json([
+                        'fileName' => $new_filename,
+                        'uploaded' => 1,
+                        'urL'      => $this->lfm->setName($new_filename)->url()
+                    ]);
+                } else {
+                    $response = view(Lfm::PACKAGE_NAME . '::use')
+                        ->withFile($this->lfm->setName($new_filename)->url());
+                }
             }
         }
 
