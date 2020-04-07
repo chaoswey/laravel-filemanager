@@ -12,7 +12,7 @@ use UniSharp\LaravelFilemanager\Middlewares\MultiUser;
 class Lfm
 {
     const PACKAGE_NAME = 'laravel-filemanager';
-    const DS = '/';
+    const DS           = '/';
 
     protected $config;
     protected $request;
@@ -41,12 +41,26 @@ class Lfm
     /**
      * Get only the file name.
      *
-     * @param  string  $path  Real path of a file.
+     * @param string $path Real path of a file.
      * @return string
      */
     public function getNameFromPath($path)
     {
-        return pathinfo($path, PATHINFO_BASENAME);
+        return $this->pathinfo($path)['basename'];
+    }
+
+    public function pathinfo($path = null)
+    {
+        if(empty($path)){
+            return null;
+        }
+
+        $path_parts = array();
+        $path_parts ['dirname'] = rtrim(substr($path, 0, strrpos($path, '/')),"/")."/";
+        $path_parts ['basename'] = ltrim(substr($path, strrpos($path, '/')),"/");
+        $path_parts ['extension'] = substr(strrchr($path, '.'), 1);
+        $path_parts ['filename'] = ltrim(substr($path ['basename'], 0, strrpos($path_parts['basename'], '.')),"/");
+        return $path_parts;
     }
 
     public function allowFolderType($type)
@@ -171,7 +185,7 @@ class Lfm
      */
     public function allowShareFolder()
     {
-        if (! $this->allowMultiUser()) {
+        if (!$this->allowMultiUser()) {
             return true;
         }
 
@@ -181,7 +195,7 @@ class Lfm
     /**
      * Translate file name to make it compatible on Windows.
      *
-     * @param  string  $input  Any string.
+     * @param string $input Any string.
      * @return string
      */
     public function translateFromUtf8($input)
@@ -221,8 +235,8 @@ class Lfm
     /**
      * Shorter function of getting localized error message..
      *
-     * @param  mixed  $error_type  Key of message in lang file.
-     * @param  mixed  $variables   Variables the message needs.
+     * @param mixed $error_type Key of message in lang file.
+     * @param mixed $variables Variables the message needs.
      * @return string
      */
     public function error($error_type, $variables = [])
@@ -237,7 +251,7 @@ class Lfm
      */
     public static function routes()
     {
-        $middleware = [ CreateDefaultFolder::class, MultiUser::class ];
+        $middleware = [CreateDefaultFolder::class, MultiUser::class];
         $as = 'unisharp.lfm.';
         $namespace = '\\UniSharp\\LaravelFilemanager\\Controllers\\';
 
@@ -246,89 +260,89 @@ class Lfm
             // display main layout
             Route::get('/', [
                 'uses' => 'LfmController@show',
-                'as' => 'show',
+                'as'   => 'show',
             ]);
 
             // display integration error messages
             Route::get('/errors', [
                 'uses' => 'LfmController@getErrors',
-                'as' => 'getErrors',
+                'as'   => 'getErrors',
             ]);
 
             // upload
             Route::any('/upload', [
                 'uses' => 'UploadController@upload',
-                'as' => 'upload',
+                'as'   => 'upload',
             ]);
 
             // list images & files
             Route::get('/jsonitems', [
                 'uses' => 'ItemsController@getItems',
-                'as' => 'getItems',
+                'as'   => 'getItems',
             ]);
 
             Route::get('/move', [
                 'uses' => 'ItemsController@move',
-                'as' => 'move',
+                'as'   => 'move',
             ]);
 
             Route::get('/domove', [
                 'uses' => 'ItemsController@domove',
-                'as' => 'domove'
+                'as'   => 'domove'
             ]);
 
             // folders
             Route::get('/newfolder', [
                 'uses' => 'FolderController@getAddfolder',
-                'as' => 'getAddfolder',
+                'as'   => 'getAddfolder',
             ]);
 
             // list folders
             Route::get('/folders', [
                 'uses' => 'FolderController@getFolders',
-                'as' => 'getFolders',
+                'as'   => 'getFolders',
             ]);
 
             // crop
             Route::get('/crop', [
                 'uses' => 'CropController@getCrop',
-                'as' => 'getCrop',
+                'as'   => 'getCrop',
             ]);
             Route::get('/cropimage', [
                 'uses' => 'CropController@getCropimage',
-                'as' => 'getCropimage',
+                'as'   => 'getCropimage',
             ]);
             Route::get('/cropnewimage', [
                 'uses' => 'CropController@getNewCropimage',
-                'as' => 'getCropimage',
+                'as'   => 'getCropimage',
             ]);
 
             // rename
             Route::get('/rename', [
                 'uses' => 'RenameController@getRename',
-                'as' => 'getRename',
+                'as'   => 'getRename',
             ]);
 
             // scale/resize
             Route::get('/resize', [
                 'uses' => 'ResizeController@getResize',
-                'as' => 'getResize',
+                'as'   => 'getResize',
             ]);
             Route::get('/doresize', [
                 'uses' => 'ResizeController@performResize',
-                'as' => 'performResize',
+                'as'   => 'performResize',
             ]);
 
             // download
             Route::get('/download', [
                 'uses' => 'DownloadController@getDownload',
-                'as' => 'getDownload',
+                'as'   => 'getDownload',
             ]);
 
             // delete
             Route::get('/delete', [
                 'uses' => 'DeleteController@getDelete',
-                'as' => 'getDelete',
+                'as'   => 'getDelete',
             ]);
 
             Route::get('/demo', 'DemoController@index');
