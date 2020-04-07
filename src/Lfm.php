@@ -55,11 +55,11 @@ class Lfm
             return null;
         }
 
-        $path_parts = array();
-        $path_parts ['dirname'] = rtrim(substr($path, 0, strrpos($path, '/')),"/")."/";
-        $path_parts ['basename'] = ltrim(substr($path, strrpos($path, '/')),"/");
-        $path_parts ['extension'] = substr(strrchr($path, '.'), 1);
-        $path_parts ['filename'] = ltrim(substr($path ['basename'], 0, strrpos($path_parts['basename'], '.')),"/");
+        $path_parts = [];
+        $path_parts['dirname'] = rtrim(substr($path, 0, strrpos($path, '/')),"/")."/";
+        $path_parts['basename'] = ltrim(substr($path, strrpos($path, '/')),"/");
+        $path_parts['extension'] = substr(strrchr($path, '.'), 1);
+        $path_parts['filename'] = ltrim(substr($path_parts['basename'], 0, strrpos($path_parts['basename'], '.')),"/");
         return $path_parts;
     }
 
