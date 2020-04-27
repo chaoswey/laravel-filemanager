@@ -59,6 +59,6 @@ class UploadController extends LfmController
             }
         }
 
-        return $response;
+        return json_encode($response);
     }
 }
