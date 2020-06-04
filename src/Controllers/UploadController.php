@@ -3,7 +3,6 @@
 namespace UniSharp\LaravelFilemanager\Controllers;
 
 use Illuminate\Support\Facades\Log;
-use UniSharp\LaravelFilemanager\Lfm;
 
 class UploadController extends LfmController
 {
@@ -41,24 +40,32 @@ class UploadController extends LfmController
         }
 
         if (is_array($uploaded_files)) {
-            $response = count($error_bag) > 0 ? $error_bag : array(parent::$success_response);
-        } else { // upload via ckeditor 'Upload' tab
+            $response = count($error_bag) > 0 ? $error_bag : parent::$success_response;
+        } else { // upload via ckeditor5 expects json responses
             if (is_null($new_filename)) {
-                $response = $error_bag[0];
+                $response = [
+                    'error' =>
+                        [
+                            'message' => $error_bag[0]
+                        ]
+                ];
             } else {
                 if (request('responseType') == 'json') {
-                    $response = response()->json([
+                    $response = [
                         'fileName' => $new_filename,
                         'uploaded' => 1,
                         'url'      => $this->lfm->setName($new_filename)->url()
-                    ]);
+                    ];
                 } else {
-                    $response = view(Lfm::PACKAGE_NAME . '::use')
-                        ->withFile($this->lfm->setName($new_filename)->url());
+                    $url = $this->lfm->setName($new_filename)->url();
+
+                    $response = [
+                        'url' => $url
+                    ];
                 }
             }
         }
 
-        return json_encode($response);
+        return response()->json($response);
     }
 }
