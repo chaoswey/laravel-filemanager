@@ -17,7 +17,7 @@ class UploadController extends LfmController
     /**
      * Upload files
      *
-     * @param void
+     * @param  void
      * @return string
      */
     public function upload()
@@ -44,25 +44,15 @@ class UploadController extends LfmController
         } else { // upload via ckeditor5 expects json responses
             if (is_null($new_filename)) {
                 $response = [
-                    'error' =>
-                        [
-                            'message' => $error_bag[0]
-                        ]
+                    'error' => ['message' => $error_bag[0]]
                 ];
             } else {
-                if (request('responseType') == 'json') {
-                    $response = [
-                        'fileName' => $new_filename,
-                        'uploaded' => 1,
-                        'url'      => $this->lfm->setName($new_filename)->url()
-                    ];
-                } else {
-                    $url = $this->lfm->setName($new_filename)->url();
+                $url = $this->lfm->setName($new_filename)->url();
 
-                    $response = [
-                        'url' => $url
-                    ];
-                }
+                $response = [
+                    'url'      => $url,
+                    'uploaded' => $url
+                ];
             }
         }
 

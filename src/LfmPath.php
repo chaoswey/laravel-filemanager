@@ -201,7 +201,7 @@ class LfmPath
         }
 
         uasort($arr_items, function ($a, $b) use ($key_to_sort) {
-            return strcmp($a->{$key_to_sort}, $b->{$key_to_sort});
+            return strcasecmp($a->{$key_to_sort}, $b->{$key_to_sort});
         });
 
         return $arr_items;
@@ -209,7 +209,7 @@ class LfmPath
 
     public function error($error_type, $variables = [])
     {
-        return $this->helper->error($error_type, $variables);
+        throw new \Exception($this->helper->error($error_type, $variables));
     }
 
     // Upload section
@@ -250,8 +250,15 @@ class LfmPath
             return $this->error('file-exist');
         }
 
+        $mimetype = $file->getMimeType();
+
+        $excutable = ['text/x-php'];
+
+        if (in_array($mimetype, $excutable)) {
+            throw new \Exception('Invalid file detected');
+        }
+
         if (config('lfm.should_validate_mime', false)) {
-            $mimetype = $file->getMimeType();
             if (false === in_array($mimetype, $this->helper->availableMimeTypes())) {
                 return $this->error('mime') . $mimetype;
             }
@@ -270,8 +277,9 @@ class LfmPath
 
     private function getNewName($file)
     {
-        $new_file_name = $this->helper
-            ->translateFromUtf8(trim(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)));
+        $new_file_name = $this->helper->translateFromUtf8(
+            trim($this->helper->utf8Pathinfo($file->getClientOriginalName(), "filename"))
+        );
 
         $extension = $file->getClientOriginalExtension();
 

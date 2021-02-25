@@ -35,32 +35,33 @@ class Lfm
 
     public function config($key)
     {
-        return $this->config->get('lfm.' . $key);
+        return $this->config->get('lfm.'.$key);
     }
 
     /**
      * Get only the file name.
      *
-     * @param string $path Real path of a file.
+     * @param  string  $path  Real path of a file.
      * @return string
      */
     public function getNameFromPath($path)
     {
-        return $this->pathinfo($path)['basename'];
+        return $this->utf8Pathinfo($path, 'basename');
     }
 
-    public function pathinfo($path = null)
+    public function utf8Pathinfo($path, $part_name)
     {
-        if(empty($path)){
-            return null;
+        // XXX: all locale work-around for issue: utf8 file name got emptified
+        // if there's no '/', we're probably dealing with just a filename
+        // so just put an 'a' in front of it
+        if (strpos($path, '/') === false) {
+            $path_parts = pathinfo('a'.$path);
+        } else {
+            $path = str_replace('/', '/a', $path);
+            $path_parts = pathinfo($path);
         }
 
-        $path_parts = [];
-        $path_parts['dirname'] = rtrim(substr($path, 0, strrpos($path, '/')),"/")."/";
-        $path_parts['basename'] = ltrim(substr($path, strrpos($path, '/')),"/");
-        $path_parts['extension'] = substr(strrchr($path, '.'), 1);
-        $path_parts['filename'] = ltrim(substr($path_parts['basename'], 0, strrpos($path_parts['basename'], '.')),"/");
-        return $path_parts;
+        return substr($path_parts[$part_name], 1);
     }
 
     public function allowFolderType($type)
@@ -76,7 +77,7 @@ class Lfm
     {
         $type = $this->currentLfmType();
 
-        return $this->config->get('lfm.folder_categories.' . $type . '.folder_name', 'files');
+        return $this->config->get('lfm.folder_categories.'.$type.'.folder_name', 'files');
     }
 
     /**
@@ -101,7 +102,7 @@ class Lfm
     public function getDisplayMode()
     {
         $type_key = $this->currentLfmType();
-        $startup_view = $this->config->get('lfm.folder_categories.' . $type_key . '.startup_view');
+        $startup_view = $this->config->get('lfm.folder_categories.'.$type_key.'.startup_view');
 
         $view_type = 'grid';
         $target_display_type = $this->input('show_list') ?: $startup_view;
@@ -144,7 +145,7 @@ class Lfm
         }
 
         // the slash is for url, dont replace it with directory seperator
-        return '/' . $folder;
+        return '/'.$folder;
     }
 
     public function getThumbFolderName()
@@ -159,12 +160,12 @@ class Lfm
 
     public function availableMimeTypes()
     {
-        return $this->config->get('lfm.folder_categories.' . $this->currentLfmType() . '.valid_mime');
+        return $this->config->get('lfm.folder_categories.'.$this->currentLfmType().'.valid_mime');
     }
 
     public function maxUploadSize()
     {
-        return $this->config->get('lfm.folder_categories.' . $this->currentLfmType() . '.max_size');
+        return $this->config->get('lfm.folder_categories.'.$this->currentLfmType().'.max_size');
     }
 
     public function getPaginationPerPage()
@@ -200,7 +201,7 @@ class Lfm
     /**
      * Translate file name to make it compatible on Windows.
      *
-     * @param string $input Any string.
+     * @param  string  $input  Any string.
      * @return string
      */
     public function translateFromUtf8($input)
@@ -240,13 +241,13 @@ class Lfm
     /**
      * Shorter function of getting localized error message..
      *
-     * @param mixed $error_type Key of message in lang file.
-     * @param mixed $variables Variables the message needs.
+     * @param  mixed  $error_type  Key of message in lang file.
+     * @param  mixed  $variables  Variables the message needs.
      * @return string
      */
     public function error($error_type, $variables = [])
     {
-        throw new \Exception(trans(self::PACKAGE_NAME . '::lfm.error-' . $error_type, $variables));
+        throw new \Exception(trans(self::PACKAGE_NAME.'::lfm.error-'.$error_type, $variables));
     }
 
     /**
@@ -319,7 +320,7 @@ class Lfm
             ]);
             Route::get('/cropnewimage', [
                 'uses' => 'CropController@getNewCropimage',
-                'as' => 'getCropnewimage',
+                'as'   => 'getCropnewimage',
             ]);
 
             // rename
